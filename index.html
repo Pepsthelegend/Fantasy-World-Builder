@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fantasy World Builder</title>
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'MedievalSharp', cursive;
+            background: linear-gradient(to bottom, #3e1f47, #0b0d1a);
+            color: #f5f5dc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        header {
+            width: 100%;
+            padding: 20px;
+            text-align: center;
+            background: #4c1b5c;
+            color: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        header h1 {
+            margin: 0;
+            font-size: 3rem;
+        }
+        .container {
+            max-width: 1200px;
+            padding: 20px;
+        }
+        .tool-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .tool-section h2 {
+            margin-top: 0;
+        }
+        .map-editor {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 300px;
+            background: url('https://i.imgur.com/0Xz8L5P.jpg') no-repeat center/cover;
+            border: 2px solid #8b4a9e;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+        .map-editor button {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            padding: 10px 15px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            background: #5c3279;
+            color: #fff;
+            cursor: pointer;
+        }
+        .map-editor button:hover {
+            background: #7a3a98;
+        }
+        .name-generator input {
+            padding: 10px;
+            font-size: 1rem;
+            width: 70%;
+            border: 2px solid #8b4a9e;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .name-generator button {
+            padding: 10px;
+            font-size: 1rem;
+            background: #5c3279;
+            border: none;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .name-generator button:hover {
+            background: #7a3a98;
+        }
+        .generated-names {
+            margin-top: 10px;
+        }
+        .lore-builder {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+        .lore-builder textarea {
+            width: 90%;
+            height: 150px;
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 1rem;
+            border: 2px solid #8b4a9e;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        .lore-builder button {
+            padding: 10px 15px;
+            font-size: 1rem;
+            background: #5c3279;
+            border: none;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .lore-builder button:hover {
+            background: #7a3a98;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Fantasy World Builder</h1>
+    </header>
+    <div class="container">
+        <!-- Map Editor Section -->
+        <div class="tool-section map-editor">
+            <h2>Interactive Map Editor</h2>
+            <p>Create your fantasy world map by placing cities, rivers, and kingdoms!</p>
+            <button onclick="placeMarker()">Place Marker</button>
+        </div>
+
+        <!-- Name Generator Section -->
+        <div class="tool-section name-generator">
+            <h2>Name Generator</h2>
+            <p>Generate unique names for your characters, cities, or kingdoms:</p>
+            <input type="text" id="name-prefix" placeholder="Enter name prefix (optional)...">
+            <button onclick="generateName()">Generate Name</button>
+            <div class="generated-names" id="generated-names"></div>
+        </div>
+
+        <!-- Lore Builder Section -->
+        <div class="tool-section lore-builder">
+            <h2>Lore Builder</h2>
+            <p>Write and store the history and culture of your fantasy world:</p>
+            <textarea id="lore-text" placeholder="Write your lore here..."></textarea>
+            <button onclick="saveLore()">Save Lore</button>
+        </div>
+    </div>
+    
+    <script>
+        // Name Generator
+        function generateName() {
+            const prefix = document.getElementById('name-prefix').value;
+            const suffixes = ['dor', 'heim', 'land', 'shire', 'mere', 'fell', 'hold', 'vale'];
+            const randomSuffix = suffixes[Math.floor(Math.random() * suffixes.length)];
+            const name = prefix ? `${prefix}${randomSuffix}` : `Ery${randomSuffix}`;
+
+            const namesContainer = document.getElementById('generated-names');
+            const newName = document.createElement('p');
+            newName.textContent = name;
+            namesContainer.appendChild(newName);
+        }
+
+        // Map Marker Placement (simple example)
+        function placeMarker() {
+            alert('Marker placed! (Expand this to draw on a canvas or integrate map API.)');
+        }
+
+        // Save Lore
+        function saveLore() {
+            const lore = document.getElementById('lore-text').value;
+            if (lore.trim() === '') {
+                alert('Please write some lore before saving!');
+                return;
+            }
+            alert('Lore saved! (Implement actual saving mechanism here)');
+        }
+    </script>
+</body>
+</html>
