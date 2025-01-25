@@ -45,32 +45,28 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 300px;
-            background: url('https://i.imgur.com/0Xz8L5P.jpg') no-repeat center/cover;
+            height: 500px;
+            background: #fff;
             border: 2px solid #8b4a9e;
             border-radius: 15px;
             position: relative;
             overflow: hidden;
         }
-        .map-editor button {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            padding: 10px 15px;
-            font-size: 1rem;
-            border: none;
-            border-radius: 5px;
-            background: #5c3279;
-            color: #fff;
-            cursor: pointer;
-        }
-        .map-editor button:hover {
-            background: #7a3a98;
+        .map-editor canvas {
+            border: 2px solid #4c1b5c;
+            background: #eaeaea;
         }
         .name-generator input {
             padding: 10px;
             font-size: 1rem;
             width: 70%;
+            border: 2px solid #8b4a9e;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .name-generator select {
+            padding: 10px;
+            font-size: 1rem;
             border: 2px solid #8b4a9e;
             border-radius: 5px;
             margin-bottom: 10px;
@@ -89,13 +85,6 @@
         }
         .generated-names {
             margin-top: 10px;
-        }
-        .lore-builder {
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-            text-align: center;
         }
         .lore-builder textarea {
             width: 90%;
@@ -119,6 +108,33 @@
         .lore-builder button:hover {
             background: #7a3a98;
         }
+        .character-creator {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+        .character-creator input {
+            margin: 5px 0;
+            padding: 10px;
+            font-size: 1rem;
+            border: 2px solid #8b4a9e;
+            border-radius: 5px;
+        }
+        .character-creator button {
+            margin: 5px;
+            padding: 10px 15px;
+            font-size: 1rem;
+            background: #5c3279;
+            border: none;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .character-creator button:hover {
+            background: #7a3a98;
+        }
     </style>
 </head>
 <body>
@@ -129,14 +145,19 @@
         <!-- Map Editor Section -->
         <div class="tool-section map-editor">
             <h2>Interactive Map Editor</h2>
-            <p>Create your fantasy world map by placing cities, rivers, and kingdoms!</p>
-            <button onclick="placeMarker()">Place Marker</button>
+            <canvas id="mapCanvas" width="800" height="400"></canvas>
+            <p>Draw rivers, place cities, and customize your map!</p>
         </div>
 
         <!-- Name Generator Section -->
         <div class="tool-section name-generator">
             <h2>Name Generator</h2>
-            <p>Generate unique names for your characters, cities, or kingdoms:</p>
+            <p>Generate unique names for your fantasy world:</p>
+            <select id="name-category">
+                <option value="city">City Names</option>
+                <option value="elf">Elf Names</option>
+                <option value="dwarf">Dwarf Names</option>
+            </select>
             <input type="text" id="name-prefix" placeholder="Enter name prefix (optional)...">
             <button onclick="generateName()">Generate Name</button>
             <div class="generated-names" id="generated-names"></div>
@@ -145,40 +166,106 @@
         <!-- Lore Builder Section -->
         <div class="tool-section lore-builder">
             <h2>Lore Builder</h2>
-            <p>Write and store the history and culture of your fantasy world:</p>
+            <p>Write and save the history of your world:</p>
             <textarea id="lore-text" placeholder="Write your lore here..."></textarea>
             <button onclick="saveLore()">Save Lore</button>
         </div>
+
+        <!-- Character Creator Section -->
+        <div class="tool-section character-creator">
+            <h2>Character Creator</h2>
+            <p>Create characters for your world:</p>
+            <input type="text" id="char-name" placeholder="Name">
+            <input type="text" id="char-race" placeholder="Race">
+            <input type="text" id="char-class" placeholder="Class">
+            <button onclick="createCharacter()">Create Character</button>
+            <div id="characters-list"></div>
+        </div>
     </div>
-    
+
     <script>
+        // Map Drawing
+        const canvas = document.getElementById('mapCanvas');
+        const ctx = canvas.getContext('2d');
+        let drawing = false;
+
+        canvas.addEventListener('mousedown', () => drawing = true);
+        canvas.addEventListener('mouseup', () => drawing = false);
+        canvas.addEventListener('mousemove', draw);
+
+        function draw(event) {
+            if (!drawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            ctx.fillStyle = '#4c1b5c';
+            ctx.fillRect(x, y, 5, 5);
+        }
+
         // Name Generator
         function generateName() {
             const prefix = document.getElementById('name-prefix').value;
-            const suffixes = ['dor', 'heim', 'land', 'shire', 'mere', 'fell', 'hold', 'vale'];
-            const randomSuffix = suffixes[Math.floor(Math.random() * suffixes.length)];
-            const name = prefix ? `${prefix}${randomSuffix}` : `Ery${randomSuffix}`;
+            const category = document.getElementById('name-category').value;
+            const suffixes = {
+                city: ['holm', 'burg', 'ton', 'ford', 'dale'],
+                elf: ['ion', 'iel', 'ara', 'wyn', 'ith'],
+                dwarf: ['grim', 'rok', 'dur', 'nain', 'rin']
+            };
+            const suffix = suffixes[category][Math.floor(Math.random() * suffixes[category].length)];
+            const name = prefix ? `${prefix}${suffix}` : `Thal${suffix}`;
 
-            const namesContainer = document.getElementById('generated-names');
-            const newName = document.createElement('p');
-            newName.textContent = name;
-            namesContainer.appendChild(newName);
+            document.getElementById('generated-names').innerText = name;
         }
-
-        // Map Marker Placement (simple example)
-        function placeMarker() {
-            alert('Marker placed! (Expand this to draw on a canvas or integrate map API.)');
-        }
-
-        // Save Lore
+        // Lore Builder
         function saveLore() {
-            const lore = document.getElementById('lore-text').value;
-            if (lore.trim() === '') {
-                alert('Please write some lore before saving!');
-                return;
+            const loreText = document.getElementById('lore-text').value;
+            if (loreText) {
+                localStorage.setItem('loreEntry', loreText);
+                alert('Lore saved successfully!');
+            } else {
+                alert('Please enter some lore to save.');
             }
-            alert('Lore saved! (Implement actual saving mechanism here)');
+        }
+        window.onload = () => {
+            const savedLore = localStorage.getItem('loreEntry');
+            if (savedLore) {
+                document.getElementById('lore-text').value = savedLore;
+            }
+        };
+        // Character Creator
+        const characters = [];
+        function createCharacter() {
+            const name = document.getElementById('char-name').value;
+            const race = document.getElementById('char-race').value;
+            const characterClass = document.getElementById('char-class').value;
+            if (name && race && characterClass) {
+                const character = {
+                    name,
+                    race,
+                    class: characterClass
+                };
+                characters.push(character);
+                displayCharacters();
+                clearCharacterFields();
+            } else {
+                alert('Please fill out all fields.');
+            }
+        }
+        function displayCharacters() {
+            const charactersList = document.getElementById('characters-list');
+            charactersList.innerHTML = '';
+            characters.forEach((character, index) => {
+                const charDiv = document.createElement('div');
+                charDiv.innerText = ${index + 1}. ${character.name} - ${character.race} - ${character.class};
+                charactersList.appendChild(charDiv);
+            });
+        }
+        function clearCharacterFields() {
+            document.getElementById('char-name').value = '';
+            document.getElementById('char-race').value = '';
+            document.getElementById('char-class').value = '';
         }
     </script>
 </body>
 </html>
+${index + 1}. ${character.name} - ${character.race} - ${character.class}
