@@ -6,6 +6,7 @@
     <title>Fantasy World Builder</title>
     <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
     <style>
+        /* Basic Styles - unchanged */
         body {
             margin: 0;
             font-family: 'MedievalSharp', cursive;
@@ -75,11 +76,18 @@
         button:hover {
             background: #7a3a98;
         }
-        .generated-names, #characters-list {
+        .generated-names, #characters-list, .region-details {
             margin-top: 10px;
         }
-        .character-creator {
+        .character-creator, .lore-creator {
             text-align: center;
+        }
+        .region-details input {
+            width: 100%;
+        }
+        .region-details textarea {
+            width: 100%;
+            height: 150px;
         }
     </style>
 </head>
@@ -94,6 +102,35 @@
             <canvas id="mapCanvas" width="800" height="400"></canvas>
             <p>Draw rivers, place cities, and customize your map!</p>
         </div>
+
+        <!-- Lore Section: Detailed Lore Creation -->
+        <div class="tool-section lore-creator">
+            <h2>Detailed Lore Builder</h2>
+            <p>Create lore for your regions:</p>
+            <div class="region-details">
+                <input type="text" id="region-name" placeholder="Enter region name..." />
+                <textarea id="region-history" placeholder="Enter the history of the region..."></textarea>
+                <textarea id="region-culture" placeholder="Enter the culture of the region..."></textarea>
+                <textarea id="region-language" placeholder="Enter the language of the region..."></textarea>
+                <button onclick="saveRegionLore()">Save Region Lore</button>
+            </div>
+        </div>
+
+        <!-- Mythology Generator Section -->
+        <div class="tool-section mythology-generator">
+            <h2>Mythology Generator</h2>
+            <button onclick="generateMythology()">Generate Mythology</button>
+            <div id="mythology-details"></div>
+        </div>
+
+        <!-- Political System & Economy Section -->
+        <div class="tool-section system-generator">
+            <h2>Political & Economic Systems Generator</h2>
+            <button onclick="generatePoliticalSystem()">Generate Political System</button>
+            <button onclick="generateEconomy()">Generate Economy</button>
+            <div id="system-details"></div>
+        </div>
+
         <!-- Name Generator Section -->
         <div class="tool-section name-generator">
             <h2>Name Generator</h2>
@@ -107,13 +144,7 @@
             <button onclick="generateName()">Generate Name</button>
             <div class="generated-names" id="generated-names"></div>
         </div>
-        <!-- Lore Builder Section -->
-        <div class="tool-section lore-builder">
-            <h2>Lore Builder</h2>
-            <p>Write and save the history of your world:</p>
-            <textarea id="lore-text" placeholder="Write your lore here..."></textarea>
-            <button onclick="saveLore()">Save Lore</button>
-        </div>
+
         <!-- Character Creator Section -->
         <div class="tool-section character-creator">
             <h2>Character Creator</h2>
@@ -125,21 +156,91 @@
             <div id="characters-list"></div>
         </div>
     </div>
+
     <script>
-        // Map Drawing
+        // Map Drawing (Updated)
         const canvas = document.getElementById('mapCanvas');
         const ctx = canvas.getContext('2d');
         let drawing = false;
+        let selectedTerrain = 'forest';
+        const terrainTypes = {
+            forest: '#228B22',   // Green for Forest
+            mountain: '#808080', // Gray for Mountain
+            water: '#1E90FF',    // Blue for Water
+            plain: '#F0E68C'     // Yellow for Plain
+        };
+
+        function selectTerrain(terrain) {
+            selectedTerrain = terrain;
+        }
+
         canvas.addEventListener('mousedown', () => drawing = true);
         canvas.addEventListener('mouseup', () => drawing = false);
         canvas.addEventListener('mousemove', draw);
+        
         function draw(event) {
             if (!drawing) return;
             const rect = canvas.getBoundingClientRect();
             const x = event.clientX - rect.left;
             const y = event.clientY - rect.top;
-            ctx.fillStyle = '#4c1b5c';
-            ctx.fillRect(x, y, 5, 5); // Draw a small square
+            ctx.fillStyle = terrainTypes[selectedTerrain];
+            ctx.fillRect(x - (x % 20), y - (y % 20), 20, 20);
+        }
+
+        // Landmark Placement
+        const landmarks = [];
+        canvas.addEventListener('click', placeLandmark);
+
+        function placeLandmark(event) {
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            landmarks.push({ x, y, type: 'city' });
+            drawLandmarks();
+        }
+
+        function drawLandmarks() {
+            landmarks.forEach(landmark => {
+                ctx.fillStyle = '#FFD700'; // Gold for Cities
+                ctx.beginPath();
+                ctx.arc(landmark.x, landmark.y, 10, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        // Lore Builder: Save Region Lore
+        function saveRegionLore() {
+            const regionName = document.getElementById('region-name').value;
+            const history = document.getElementById('region-history').value;
+            const culture = document.getElementById('region-culture').value;
+            const language = document.getElementById('region-language').value;
+
+            if (regionName && history && culture && language) {
+                localStorage.setItem(regionName, JSON.stringify({ history, culture, language }));
+                alert(`Lore for ${regionName} saved!`);
+            } else {
+                alert('Please fill out all fields for the region lore.');
+            }
+        }
+
+        // Mythology Generator
+        function generateMythology() {
+            const myths = ['The Great Serpent', 'The Sun God', 'The Moon Goddesses', 'The First War', 'The Creation of Earth'];
+            const selectedMyth = myths[Math.floor(Math.random() * myths.length)];
+            document.getElementById('mythology-details').innerText = `Myth: ${selectedMyth}`;
+        }
+
+        // Political System & Economy Generators
+        function generatePoliticalSystem() {
+            const systems = ['Monarchy', 'Democracy', 'Dictatorship', 'Theocracy', 'Oligarchy'];
+            const selectedSystem = systems[Math.floor(Math.random() * systems.length)];
+            document.getElementById('system-details').innerText = `Political System: ${selectedSystem}`;
+        }
+
+        function generateEconomy() {
+            const economies = ['Barter', 'Currency', 'Trade', 'Communism', 'Feudal System'];
+            const selectedEconomy = economies[Math.floor(Math.random() * economies.length)];
+            document.getElementById('system-details').innerText += `\nEconomy: ${selectedEconomy}`;
         }
 
         // Name Generator
@@ -155,23 +256,6 @@
             const name = prefix ? `${prefix}${suffix}` : `Thal${suffix}`;
             document.getElementById('generated-names').innerText = name;
         }
-
-        // Lore Builder
-        function saveLore() {
-            const loreText = document.getElementById('lore-text').value;
-            if (loreText) {
-                localStorage.setItem('loreEntry', loreText);
-                alert('Lore saved successfully!');
-            } else {
-                alert('Please enter some lore to save.');
-            }
-        }
-        window.onload = () => {
-            const savedLore = localStorage.getItem('loreEntry');
-            if (savedLore) {
-                document.getElementById('lore-text').value = savedLore;
-            }
-        };
 
         // Character Creator
         const characters = [];
