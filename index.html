@@ -139,8 +139,9 @@
             const x = event.clientX - rect.left;
             const y = event.clientY - rect.top;
             ctx.fillStyle = '#4c1b5c';
-            ctx.fillRect(x, y, 5, 5);
+            ctx.fillRect(x, y, 5, 5); // Draw a small square
         }
+
         // Name Generator
         function generateName() {
             const prefix = document.getElementById('name-prefix').value;
@@ -151,9 +152,10 @@
                 dwarf: ['grim', 'rok', 'dur', 'nain', 'rin']
             };
             const suffix = suffixes[category][Math.floor(Math.random() * suffixes[category].length)];
-            const name = prefix ? ${prefix}${suffix} : Thal${suffix};
+            const name = prefix ? `${prefix}${suffix}` : `Thal${suffix}`;
             document.getElementById('generated-names').innerText = name;
         }
+
         // Lore Builder
         function saveLore() {
             const loreText = document.getElementById('lore-text').value;
@@ -170,6 +172,7 @@
                 document.getElementById('lore-text').value = savedLore;
             }
         };
+
         // Character Creator
         const characters = [];
         function createCharacter() {
@@ -185,15 +188,17 @@
                 alert('Please fill out all fields.');
             }
         }
+
         function displayCharacters() {
             const charactersList = document.getElementById('characters-list');
             charactersList.innerHTML = '';
             characters.forEach((character, index) => {
                 const charDiv = document.createElement('div');
-                charDiv.innerText = ${index + 1}. ${character.name} - ${character.race} - ${character.class};
+                charDiv.innerText = `${index + 1}. ${character.name} - ${character.race} - ${character.class}`;
                 charactersList.appendChild(charDiv);
             });
         }
+
         function clearCharacterFields() {
             document.getElementById('char-name').value = '';
             document.getElementById('char-race').value = '';
@@ -202,4 +207,3 @@
     </script>
 </body>
 </html>
-${prefix}${suffix}Thal${suffix}${index + 1}. ${character.name} - ${character.race} - ${character.class}
