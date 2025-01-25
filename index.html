@@ -6,6 +6,7 @@
     <title>Fantasy World Builder</title>
     <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
     <style>
+        /* General styling */
         body {
             margin: 0;
             font-family: 'MedievalSharp', cursive;
@@ -100,15 +101,6 @@
             width: 100%;
             margin-top: 10px;
         }
-        .tooltip {
-            position: absolute;
-            background: rgba(0, 0, 0, 0.7);
-            color: #fff;
-            border-radius: 5px;
-            padding: 5px;
-            font-size: 0.8rem;
-            visibility: hidden;
-        }
     </style>
 </head>
 <body>
@@ -116,13 +108,15 @@
         <h1>Fantasy World Builder</h1>
     </header>
     <div class="container">
+        <!-- Map Editor Section -->
         <div class="tool-section map-editor">
             <h2>Interactive Map Editor</h2>
             <canvas id="mapCanvas" width="800" height="400"></canvas>
-            <div class="tooltip" id="map-tooltip"></div>
+            <div id="map-tooltip" class="tooltip"></div>
             <p>Draw rivers, place cities, and customize your map!</p>
         </div>
 
+        <!-- Lore Section -->
         <div class="tool-section lore-creator">
             <h2>Detailed Lore Builder</h2>
             <p>Create lore for your regions:</p>
@@ -135,6 +129,7 @@
             </div>
         </div>
 
+        <!-- Mythology Generator Section -->
         <div class="tool-section mythology-generator">
             <h2>Mythology Generator</h2>
             <select id="mythology-category">
@@ -146,6 +141,7 @@
             <div id="mythology-details"></div>
         </div>
 
+        <!-- System Generator Section -->
         <div class="tool-section system-generator">
             <h2>Political & Economic Systems Generator</h2>
             <button onclick="generatePoliticalSystem()">Generate Political System</button>
@@ -153,6 +149,7 @@
             <div id="system-details"></div>
         </div>
 
+        <!-- Name Generator Section -->
         <div class="tool-section name-generator">
             <h2>Name Generator</h2>
             <p>Generate unique names for your fantasy world:</p>
@@ -165,9 +162,10 @@
             </select>
             <input type="text" id="name-prefix" placeholder="Enter name prefix (optional)...">
             <button onclick="generateName()">Generate Name</button>
-            <div class="generated-names" id="generated-names"></div>
+            <div id="generated-names"></div>
         </div>
 
+        <!-- Character Creator Section -->
         <div class="tool-section character-creator">
             <h2>Character Creator</h2>
             <p>Create characters for your world:</p>
@@ -193,19 +191,41 @@
             water: '#1E90FF',
             plain: '#F0E68C'
         };
-
         const landmarks = [];
         const mapTooltip = document.getElementById('map-tooltip');
 
+        /**
+         * Event listener for starting the drawing
+         */
+        canvas.addEventListener('mousedown', () => drawing = true);
+
+        /**
+         * Event listener for stopping the drawing
+         */
+        canvas.addEventListener('mouseup', () => drawing = false);
+
+        /**
+         * Event listener for drawing on the map
+         */
+        canvas.addEventListener('mousemove', draw);
+
+        /**
+         * Event listener for displaying the tooltip on map
+         */
+        canvas.addEventListener('mousemove', displayTooltip);
+
+        /**
+         * Function to select a terrain type
+         * @param {string} terrain - Selected terrain type
+         */
         function selectTerrain(terrain) {
             selectedTerrain = terrain;
         }
 
-        canvas.addEventListener('mousedown', () => drawing = true);
-        canvas.addEventListener('mouseup', () => drawing = false);
-        canvas.addEventListener('mousemove', draw);
-        canvas.addEventListener('mousemove', displayTooltip);
-
+        /**
+         * Function to draw on the map
+         * @param {Event} event - Mouse event for drawing
+         */
         function draw(event) {
             if (!drawing) return;
             const rect = canvas.getBoundingClientRect();
@@ -215,6 +235,10 @@
             ctx.fillRect(x - (x % 20), y - (y % 20), 20, 20);
         }
 
+        /**
+         * Function to display tooltip with current coordinates and terrain
+         * @param {Event} event - Mouse event for tooltip
+         */
         function displayTooltip(event) {
             const rect = canvas.getBoundingClientRect();
             const x = event.clientX - rect.left;
@@ -225,37 +249,39 @@
             mapTooltip.textContent = `${Math.floor(x / 20)}, ${Math.floor(y / 20)} - Terrain: ${selectedTerrain}`;
         }
 
-        function placeLandmark(event) {
-            const rect = canvas.getBoundingClientRect();
-            const x = event.clientX - rect.left;
-            const y = event.clientY - rect.top;
-            landmarks.push({ x, y, type: 'city' });
-            drawLandmarks();
-        }
-
-        function drawLandmarks() {
-            landmarks.forEach(landmark => {
-                ctx.fillStyle = '#FFD700';
-                ctx.beginPath();
-                ctx.arc(landmark.x, landmark.y, 10, 0, Math.PI * 2);
-                ctx.fill();
-            });
-        }
-
+        /**
+         * Save region lore to local storage
+         */
         function saveRegionLore() {
             const regionName = document.getElementById('region-name').value;
             const history = document.getElementById('region-history').value;
             const culture = document.getElementById('region-culture').value;
             const language = document.getElementById('region-language').value;
 
-            if (regionName && history && culture && language) {
+            if (validateInputs(regionName, history, culture, language)) {
                 localStorage.setItem(regionName, JSON.stringify({ history, culture, language }));
                 alert(`Lore for ${regionName} saved!`);
-            } else {
-                alert('Please fill out all fields for the region lore.');
             }
         }
 
+        /**
+         * Validates the input fields
+         * @param {...string} inputs - Input fields to be validated
+         * @returns {boolean} - True if all inputs are valid, false otherwise
+         */
+        function validateInputs(...inputs) {
+            for (const input of inputs) {
+                if (!input.trim()) {
+                    alert('Please fill in all fields.');
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /**
+         * Generate mythology details based on selected category
+         */
         function generateMythology() {
             const category = document.getElementById('mythology-category').value;
             let details = '';
@@ -275,18 +301,27 @@
             document.getElementById('mythology-details').innerText = details;
         }
 
+        /**
+         * Generate a political system randomly
+         */
         function generatePoliticalSystem() {
             const systems = ['Monarchy', 'Democracy', 'Dictatorship', 'Theocracy', 'Oligarchy'];
             const selectedSystem = systems[Math.floor(Math.random() * systems.length)];
             document.getElementById('system-details').innerText = `Political System: ${selectedSystem}`;
         }
 
+        /**
+         * Generate an economy system randomly
+         */
         function generateEconomy() {
             const economies = ['Barter', 'Currency', 'Trade', 'Communism', 'Feudal System'];
             const selectedEconomy = economies[Math.floor(Math.random() * economies.length)];
             document.getElementById('system-details').innerText += `\nEconomy: ${selectedEconomy}`;
         }
 
+        /**
+         * Generate a name based on selected category
+         */
         function generateName() {
             const prefix = document.getElementById('name-prefix').value;
             const category = document.getElementById('name-category').value;
@@ -303,6 +338,10 @@
         }
 
         const characters = [];
+
+        /**
+         * Create and store a new character
+         */
         function createCharacter() {
             const name = document.getElementById('char-name').value;
             const race = document.getElementById('char-race').value;
@@ -311,16 +350,17 @@
             const agility = document.getElementById('char-agility').value;
             const intelligence = document.getElementById('char-intelligence').value;
 
-            if (name && race && characterClass && strength && agility && intelligence) {
+            if (validateInputs(name, race, characterClass, strength, agility, intelligence)) {
                 const character = { name, race, class: characterClass, strength, agility, intelligence };
                 characters.push(character);
                 displayCharacters();
                 clearCharacterFields();
-            } else {
-                alert('Please fill out all fields.');
             }
         }
 
+        /**
+         * Display all created characters
+         */
         function displayCharacters() {
             const charactersList = document.getElementById('characters-list');
             charactersList.innerHTML = '';
@@ -331,6 +371,9 @@
             });
         }
 
+        /**
+         * Clear all character input fields
+         */
         function clearCharacterFields() {
             document.getElementById('char-name').value = '';
             document.getElementById('char-race').value = '';
